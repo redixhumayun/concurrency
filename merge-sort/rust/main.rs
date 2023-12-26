@@ -7,6 +7,24 @@ fn merge_sort_parallel(arr: &mut [i32]) {
     if mid == 0 {
         return;
     }
+
+    let (left, right) = arr.split_at_mut(mid);
+
+    let mut left_clone = left.to_vec();
+    let mut right_clone = right.to_vec();
+
+    let left_handle = thread::spawn(move || {
+        merge_sort_parallel(&mut left_clone);
+        return left_clone;
+    });
+
+    merge_sort_parallel(&mut right_clone);
+
+    let left_sorted = left_handle.join().unwrap();
+
+    let mut res = arr.to_vec();
+    merge(&left_sorted, &right_clone, &mut res[..]);
+    arr.copy_from_slice(&res[..]);
 }
 
 fn merge_sort(arr: &mut [i32]) {
@@ -49,11 +67,18 @@ fn main() {
     let mut array: Vec<i32> = (0..10)
         .map(|_| rand::thread_rng().gen_range(1..100))
         .collect();
-    let start = Instant::now();
-    merge_sort(&mut array);
-    let duration = start.elapsed();
-    println!("Time elapsed is: {:?}", duration);
-    println!("THe sorted array: {:?}", array);
+    // let start = Instant::now();
+    // merge_sort(&mut array);
+    // let duration = start.elapsed();
+    // println!("Time elapsed for sequential sorting is: {:?}", duration);
+    // println!("The sorted array: {:?}", array);
 
-    // println!("{:?}", array);
+    let start_concurrent = Instant::now();
+    merge_sort_parallel(&mut array);
+    let duration_concurrent = start_concurrent.elapsed();
+    println!(
+        "Time elapsed for concurrent sorting is: {:?}",
+        duration_concurrent
+    );
+    println!("The sorted array: {:?}", array);
 }
