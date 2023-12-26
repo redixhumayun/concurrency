@@ -2,7 +2,7 @@ use rand::Rng;
 use std::thread;
 use std::time::Instant;
 
-const THRESHOLD: i32 = 1000;
+const THRESHOLD: i32 = 100000;
 
 fn merge_sort_parallel(arr: &mut [i32]) {
     let mid = arr.len() / 2;
@@ -71,21 +71,23 @@ fn merge(left: &[i32], right: &[i32], ret: &mut [i32]) {
 }
 
 fn main() {
-    let mut array: Vec<i32> = (0..100_000)
+    let mut array: Vec<i32> = (0..100_000_000)
         .map(|_| rand::thread_rng().gen_range(1..100))
         .collect();
+    let mut array_clone = array.clone();
+
+    //  run sequential sort
     let start = Instant::now();
     merge_sort(&mut array);
     let duration = start.elapsed();
     println!("Time elapsed for sequential sorting is: {:?}", duration);
 
-    // let start_concurrent = Instant::now();
-    // merge_sort_parallel(&mut array);
-    // let duration_concurrent = start_concurrent.elapsed();
-    // println!(
-    //     "Time elapsed for concurrent sorting is: {:?}",
-    //     duration_concurrent
-    // );
-
-    // println!("The sorted array: {:?}", array);
+    //  run parallel sort
+    let start_concurrent = Instant::now();
+    merge_sort_parallel(&mut array_clone);
+    let duration_concurrent = start_concurrent.elapsed();
+    println!(
+        "Time elapsed for concurrent sorting is: {:?}",
+        duration_concurrent
+    );
 }
