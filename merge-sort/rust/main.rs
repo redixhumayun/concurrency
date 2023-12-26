@@ -2,9 +2,16 @@ use rand::Rng;
 use std::thread;
 use std::time::Instant;
 
+const THRESHOLD: i32 = 1000;
+
 fn merge_sort_parallel(arr: &mut [i32]) {
     let mid = arr.len() / 2;
     if mid == 0 {
+        return;
+    }
+
+    if arr.len() < THRESHOLD.try_into().unwrap() {
+        merge_sort(arr);
         return;
     }
 
@@ -64,21 +71,21 @@ fn merge(left: &[i32], right: &[i32], ret: &mut [i32]) {
 }
 
 fn main() {
-    let mut array: Vec<i32> = (0..10)
+    let mut array: Vec<i32> = (0..100_000)
         .map(|_| rand::thread_rng().gen_range(1..100))
         .collect();
-    // let start = Instant::now();
-    // merge_sort(&mut array);
-    // let duration = start.elapsed();
-    // println!("Time elapsed for sequential sorting is: {:?}", duration);
-    // println!("The sorted array: {:?}", array);
+    let start = Instant::now();
+    merge_sort(&mut array);
+    let duration = start.elapsed();
+    println!("Time elapsed for sequential sorting is: {:?}", duration);
 
-    let start_concurrent = Instant::now();
-    merge_sort_parallel(&mut array);
-    let duration_concurrent = start_concurrent.elapsed();
-    println!(
-        "Time elapsed for concurrent sorting is: {:?}",
-        duration_concurrent
-    );
-    println!("The sorted array: {:?}", array);
+    // let start_concurrent = Instant::now();
+    // merge_sort_parallel(&mut array);
+    // let duration_concurrent = start_concurrent.elapsed();
+    // println!(
+    //     "Time elapsed for concurrent sorting is: {:?}",
+    //     duration_concurrent
+    // );
+
+    // println!("The sorted array: {:?}", array);
 }
