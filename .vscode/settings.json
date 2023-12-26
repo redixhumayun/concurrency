@@ -1,3 +1,7 @@
 {
-  "rust-analyzer.linkedProjects": ["/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/rust/Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/rust/Cargo.toml"],
+  "[rust]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  }
 }
