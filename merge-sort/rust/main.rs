@@ -1,11 +1,17 @@
 use rand::Rng;
 use std::time::Instant;
+use std::thread;
+
+fn merge_sort_parallel(arr: &mut [i32]) {
+  
+}
 
 fn merge_sort(arr: &mut [i32]) {
   let mid = arr.len() / 2;
   if mid == 0 {
     return;
   }
+  
   merge_sort(&mut arr[0..mid]);
   merge_sort(&mut arr[mid..]);
 
@@ -37,10 +43,12 @@ fn merge(left: &[i32], right: &[i32], ret: &mut [i32]) {
 }
 
 fn main() {
-  let mut array: Vec<i32> = (0..10_000_000).map(|_| rand::thread_rng().gen_range(1..100)).collect();
+  let mut array: Vec<i32> = (0..10).map(|_| rand::thread_rng().gen_range(1..100)).collect();
   let start = Instant::now();
   merge_sort(&mut array);
   let duration = start.elapsed();
   println!("Time elapsed is: {:?}", duration);
+  println!("THe sorted array: {:?}", array);
+
   // println!("{:?}", array);
 }
