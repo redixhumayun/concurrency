@@ -91,3 +91,22 @@ fn main() {
         duration_concurrent
     );
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn merge_sort_test() {
+        let mut numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
+        merge_sort(&mut numbers);
+        assert_eq!(numbers, [1, 1, 2, 3, 3, 4, 5, 5, 6, 9]);
+    }
+
+    #[test]
+    fn merge_sort_parallel_test() {
+        let mut numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
+        merge_sort_parallel(&mut numbers);
+        assert_eq!(numbers, [1, 1, 2, 3, 3, 4, 5, 5, 6, 9]);
+    }
+}
