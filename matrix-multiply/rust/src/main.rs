@@ -1,6 +1,29 @@
+use rayon::prelude::*;
 use std::time::Instant;
 
 use rand::Rng;
+
+fn matrix_multiply_with_parallelism(a: &Vec<Vec<i32>>, b: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+    let m = a.len();
+    let n = b.len();
+    let p = b[0].len();
+
+    let c: Vec<Vec<i32>> = (0..m)
+        .into_par_iter()
+        .map(|i| {
+            let mut c_row = Vec::with_capacity(p);
+            for j in 0..p {
+                let mut sum = 0;
+                for k in 0..n {
+                    sum += a[i][k] * b[k][j];
+                }
+                c_row.push(sum);
+            }
+            c_row
+        })
+        .collect();
+    c
+}
 
 fn transpose(matrix: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
     let rows = matrix.len();
@@ -117,4 +140,10 @@ fn main() {
     let duration = start.elapsed();
     println!("Time duration for transpose: {:?}", duration);
     assert_eq!(c, c_tranpose);
+
+    let start = Instant::now();
+    let c_parallel = matrix_multiply_with_parallelism(&a, &b);
+    let duration = start.elapsed();
+    println!("Time duration for parallel: {:?}", duration);
+    assert_eq!(c, c_parallel);
 }
