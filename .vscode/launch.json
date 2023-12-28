@@ -5,7 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(lldb) Launch",
+      "name": "(lldb) Launch Cpp",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/matrix-multiply/cpp/build/tests",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "(lldb) Launch Rust",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/matrix-multiply/rust/target/debug/deps/rust-059fb585b697754e",
