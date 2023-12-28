@@ -1,5 +1,5 @@
 {
-  "rust-analyzer.linkedProjects": ["/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/rust/Cargo.toml"],
+  "rust-analyzer.linkedProjects": ["/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/rust/Cargo.toml", "/Users/zaidhumayun/Desktop/Development.nosync/concurrency/matrix-multiply/rust/Cargo.toml"],
   "[rust]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
@@ -70,5 +70,6 @@
     "unordered_set": "cpp",
     "variant": "cpp",
     "algorithm": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/cpp"
 }
