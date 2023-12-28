@@ -2,6 +2,68 @@ use rayon::prelude::*;
 use std::time::Instant;
 
 use rand::Rng;
+use std::thread;
+
+const TILE_SIZE: usize = 500;
+
+fn multiply_matrix_tiles(
+    a: &Vec<Vec<i32>>,
+    b: &Vec<Vec<i32>>,
+    m: usize,
+    n: usize,
+    p: usize,
+    i_start: usize,
+    j_start: usize,
+) -> Vec<Vec<i32>> {
+    let mut output_matrix = vec![vec![0; TILE_SIZE]; TILE_SIZE];
+    for i in 0..TILE_SIZE {
+        for j in 0..TILE_SIZE {
+            if i_start + i < m && j_start + j < p {
+                for k in 0..n {
+                    output_matrix[i][j] += a[i_start + i][k] * b[k][j_start + j];
+                }
+            }
+        }
+    }
+    output_matrix
+}
+
+fn matrix_multiply_with_tiles(a: &Vec<Vec<i32>>, b: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+    let m = a.len();
+    let n = b.len();
+    let p = b[0].len();
+
+    let mut threads = vec![];
+
+    for i in (0..m).step_by(TILE_SIZE) {
+        for j in (0..p).step_by(TILE_SIZE) {
+            let a_clone = a.to_vec();
+            let b_clone = b.to_vec();
+
+            threads.push(thread::spawn(move || {
+                multiply_matrix_tiles(&a_clone, &b_clone, m, n, p, i, j)
+            }));
+        }
+    }
+
+    let mut result = vec![vec![0; p]; m];
+
+    // Inside matrix_multiply_tiled_parallel, after joining threads:
+    for (idx, thread) in threads.into_iter().enumerate() {
+        let partial_result = thread.join().unwrap();
+        let tile_row = idx / ((m + TILE_SIZE - 1) / TILE_SIZE);
+        let tile_col = idx % ((p + TILE_SIZE - 1) / TILE_SIZE);
+
+        for (i, row) in partial_result.into_iter().enumerate() {
+            for (j, val) in row.into_iter().enumerate() {
+                if tile_row * TILE_SIZE + i < m && tile_col * TILE_SIZE + j < p {
+                    result[tile_row * TILE_SIZE + i][tile_col * TILE_SIZE + j] = val;
+                }
+            }
+        }
+    }
+    result
+}
 
 fn matrix_multiply_with_parallelism(a: &Vec<Vec<i32>>, b: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
     let m = a.len();
@@ -101,11 +163,11 @@ fn matrix_multiply(a: &Vec<Vec<i32>>, b: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
 }
 
 fn main() {
-    let rows_a = 5000;
+    let rows_a = 1000;
     let cols_a = 1000;
 
     let rows_b = 1000;
-    let cols_b = 5000;
+    let cols_b = 1000;
 
     let a: Vec<Vec<i32>> = (0..rows_a)
         .map(|_| {
@@ -146,4 +208,52 @@ fn main() {
     let duration = start.elapsed();
     println!("Time duration for parallel: {:?}", duration);
     assert_eq!(c, c_parallel);
+
+    let start = Instant::now();
+    let c_tiled = matrix_multiply_with_tiles(&a, &b);
+    let duration = start.elapsed();
+    println!("Time duration for tiled: {:?}", duration);
+    assert_eq!(c, c_tiled);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn multiply_matrix_tiles_test() {
+        let a: Vec<Vec<i32>> = (0..TILE_SIZE)
+            .map(|_| {
+                return (0..TILE_SIZE)
+                    .map(|_| rand::thread_rng().gen_range(1..100))
+                    .collect();
+            })
+            .collect();
+
+        let b: Vec<Vec<i32>> = (0..TILE_SIZE)
+            .map(|_| {
+                return (0..TILE_SIZE)
+                    .map(|_| rand::thread_rng().gen_range(1..100))
+                    .collect();
+            })
+            .collect();
+
+        let m = a.len();
+        let n = b.len();
+        let p = b[0].len();
+
+        let output_matrix = multiply_matrix_tiles(&a, &b, m, n, p, 0, 0);
+        println!("{:?}", output_matrix);
+        assert_eq!(output_matrix.len(), TILE_SIZE);
+        assert_eq!(output_matrix, matrix_multiply(&a, &b));
+    }
+
+    #[test]
+    fn multiply_matrix_tiles_threads_test() {
+        let a: Vec<Vec<i32>> = vec![vec![1, 2, 3], vec![4, 5, 6]];
+        let b: Vec<Vec<i32>> = vec![vec![7, 8], vec![9, 10], vec![11, 12]];
+        let output_matrix = matrix_multiply_with_tiles(&a, &b);
+        println!("{:?}", output_matrix);
+        assert_eq!(output_matrix, vec![vec![58, 64], vec![139, 154]]);
+    }
 }
