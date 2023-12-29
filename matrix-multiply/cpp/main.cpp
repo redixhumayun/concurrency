@@ -65,5 +65,12 @@ int main() {
   cout << "Time elapsed for parallel sorting: " << duration_parallel.count()
        << " seconds\n";
 
+  auto start_tiles = chrono::high_resolution_clock::now();
+  auto g = matrix_multiply_with_tiles(a, b);
+  auto end_tiles = chrono::high_resolution_clock::now();
+  chrono::duration<double> duration_tiles = end_tiles - start_tiles;
+  cout << "Time elapsed for tiles sorting: " << duration_tiles.count()
+       << " seconds\n";
+
   return 0;
 }
