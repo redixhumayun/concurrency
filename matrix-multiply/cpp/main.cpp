@@ -9,9 +9,9 @@ using namespace std;
 
 int main() {
   const size_t rows_a = 1000;
-  const size_t cols_a = 500;
+  const size_t cols_a = 1000;
 
-  const size_t rows_b = 500;
+  const size_t rows_b = 1000;
   const size_t cols_b = 1000;
 
   const int num_range = 100;
@@ -48,6 +48,21 @@ int main() {
   auto end_no_buffer = chrono::high_resolution_clock::now();
   chrono::duration<double> duration_no_buffer = end_no_buffer - start_no_buffer;
   cout << "Time elapsed for no buffer sorting: " << duration_no_buffer.count()
+       << " seconds\n";
+
+  auto b_transponse = matrix_transpose(b);
+  auto start_transpose = chrono::high_resolution_clock::now();
+  auto e = matrix_multiply(a, b_transponse);
+  auto end_transpose = chrono::high_resolution_clock::now();
+  chrono::duration<double> duration_transpose = end_transpose - start_transpose;
+  cout << "Time elapsed for transpose sorting: " << duration_transpose.count()
+       << " seconds\n";
+
+  auto start_parallel = chrono::high_resolution_clock::now();
+  auto f = matrix_multiply_parallel(a, b);
+  auto end_parallel = chrono::high_resolution_clock::now();
+  chrono::duration<double> duration_parallel = end_parallel - start_parallel;
+  cout << "Time elapsed for parallel sorting: " << duration_parallel.count()
        << " seconds\n";
 
   return 0;
