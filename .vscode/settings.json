@@ -69,7 +69,9 @@
     "unordered_map": "cpp",
     "unordered_set": "cpp",
     "variant": "cpp",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "queue": "cpp",
+    "shared_mutex": "cpp"
   },
   "cmake.sourceDirectory": "/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/cpp"
 }
