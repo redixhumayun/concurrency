@@ -30,7 +30,7 @@ TEST(QueueTest, BasicOperations) {
 }
 
 void producer(Queue<int>& q, int start, int end) {
-  for (int i = 0; i < end; i++) {
+  for (int i = start; i < end; i++) {
     q.push(i);
   }
 }
@@ -42,7 +42,6 @@ void consumer(Queue<int>& q, int count, vector<int>& results) {
       results.push_back(value.value());
     }
   }
-  cout << "Results size: " << results.size() << endl;
 }
 
 TEST(QueueTest, ThreadSafety) {
@@ -57,4 +56,47 @@ TEST(QueueTest, ThreadSafety) {
   t2.join();
 
   ASSERT_EQ(results.size(), num_elements);
+}
+
+TEST(QueueTest, StressTestPush) {
+  Queue<int> q;
+  const int num_threads =
+      10;  //  picking 10 because ARM processors have a 1:1 thread to core ratio
+           //  and the M1 pro has 10 cores
+  const int num_elements_per_thread = 100;
+
+  vector<thread> threads;
+  for (int i = 0; i < num_threads; i++) {
+    threads.emplace_back(producer, std::ref(q), i * num_elements_per_thread,
+                         (i + 1) * num_elements_per_thread);
+  }
+
+  for (auto& t : threads) {
+    t.join();
+  }
+
+  ASSERT_EQ(q.size(), num_threads * num_elements_per_thread);
+}
+
+TEST(QueueTest, StressTestPushAndPop) {
+  Queue<int> q;
+  const int num_threads = 10;
+  const int num_elements_per_thread = 100;
+
+  vector<thread> threads;
+  for (int i = 0; i < num_threads; i++) {
+    threads.emplace_back(producer, std::ref(q), i * num_elements_per_thread,
+                         (i + 1) * num_elements_per_thread);
+  }
+
+  vector<int> popped_values;
+  threads.emplace_back(consumer, std::ref(q),
+                       num_threads * num_elements_per_thread,
+                       std::ref(popped_values));
+
+  for (auto& t : threads) {
+    t.join();
+  }
+
+  ASSERT_EQ(q.size(), 0);
 }

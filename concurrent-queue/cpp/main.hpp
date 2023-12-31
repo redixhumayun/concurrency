@@ -55,4 +55,9 @@ class Queue {
     shared_lock<shared_mutex> lock(m);
     return q.empty();
   }
+
+  int size() {
+    shared_lock<shared_mutex> lock(m);
+    return q.size();
+  }
 };
