@@ -10,6 +10,15 @@ set(OpenMP_CXX_LIBRARIES "-L/opt/homebrew/opt/libomp/lib -lomp")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_LIBRARIES}")
 
+# Set the thread sanitizer flag
+if (USE_TSAN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -g -O1")
+endif()
+
+# Set the address sanitizer flag
+if (USE_ASAN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -g -O1")
+endif()
 
 include(FetchContent)
 include(GoogleTest)

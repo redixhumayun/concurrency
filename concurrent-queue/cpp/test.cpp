@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <mutex>
 #include <thread>
 
 #include "main.hpp"
@@ -44,6 +45,17 @@ void consumer(Queue<int>& q, int count, vector<int>& results) {
   }
 }
 
+void multi_thread_consumer(Queue<int>& q, set<int>& consumed, mutex& m,
+                           int count) {
+  for (int i = 0; i < count; i++) {
+    auto value = q.pop();
+    if (value.has_value()) {
+      lock_guard<mutex> lock(m);
+      consumed.insert(value.value());
+    }
+  }
+}
+
 TEST(QueueTest, ThreadSafety) {
   Queue<int> q;
   vector<int> results;
@@ -63,7 +75,7 @@ TEST(QueueTest, StressTestPush) {
   const int num_threads =
       10;  //  picking 10 because ARM processors have a 1:1 thread to core ratio
            //  and the M1 pro has 10 cores
-  const int num_elements_per_thread = 100;
+  const int num_elements_per_thread = 10000;
 
   vector<thread> threads;
   for (int i = 0; i < num_threads; i++) {
@@ -81,7 +93,7 @@ TEST(QueueTest, StressTestPush) {
 TEST(QueueTest, StressTestPushAndPop) {
   Queue<int> q;
   const int num_threads = 10;
-  const int num_elements_per_thread = 100;
+  const int num_elements_per_thread = 10000;
 
   vector<thread> threads;
   for (int i = 0; i < num_threads; i++) {
@@ -99,4 +111,36 @@ TEST(QueueTest, StressTestPushAndPop) {
   }
 
   ASSERT_EQ(q.size(), 0);
+}
+
+TEST(QueueTest, StressTestMultiProducerMultiConsumer) {
+  Queue<int> q;
+  std::set<int> consumed;
+  std::mutex m;
+  const int num_producers = 5;
+  const int num_consumers = 5;
+  const int num_items_per_producer = 100;
+
+  std::vector<std::thread> producers;
+  std::vector<std::thread> consumers;
+
+  for (int i = 0; i < num_producers; ++i) {
+    producers.emplace_back(producer, std::ref(q), i * num_items_per_producer,
+                           (i + 1) * num_items_per_producer);
+  }
+
+  for (int i = 0; i < num_consumers; ++i) {
+    consumers.emplace_back(multi_thread_consumer, std::ref(q),
+                           std::ref(consumed), std::ref(m),
+                           num_items_per_producer);
+  }
+
+  for (auto& p : producers) {
+    p.join();
+  }
+  for (auto& c : consumers) {
+    c.join();
+  }
+
+  ASSERT_EQ(consumed.size(), num_producers * num_items_per_producer);
 }
