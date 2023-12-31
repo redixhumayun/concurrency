@@ -7,14 +7,14 @@
 
 static void BM_ConcurrentQueuePush(benchmark::State& state) {
   for (auto _ : state) {
-    state.PauseTiming();  // Pause timing while setting up the test
+    state.PauseTiming();
 
     Queue<int> q;
     std::vector<std::thread> threads;
     int num_threads = state.range(0);
     int items_per_thread = 1000;
 
-    state.ResumeTiming();  // Resume timing for the actual benchmark
+    state.ResumeTiming();
 
     for (int i = 0; i < num_threads; ++i) {
       threads.emplace_back([&q, items_per_thread]() {
