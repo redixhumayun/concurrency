@@ -33,11 +33,12 @@ class lock_free_queue {
 
     //  do an infinite loop to change the tail
     while (true) {
-      node* current_tail = this->tail.load(std::memory_order_seq_cst);
+      node* current_tail = this->tail.load(std::memory_order_acquire);
       node* tail_next = current_tail->next;
 
       //  everything is correct so far, attempt the swap
-      if (current_tail->next.compare_exchange_strong(tail_next, new_node, std::memory_order_seq_cst, std::memory_order_seq_cst)) {
+      if (current_tail->next.compare_exchange_strong(
+              tail_next, new_node, std::memory_order_release)) {
         this->tail = new_node;
         break;
       }
@@ -49,14 +50,11 @@ class lock_free_queue {
 
     //  do an infinite loop the change the head
     while (true) {
-      node* current_head = this->head.load(std::memory_order_seq_cst);
+      node* current_head = this->head.load(std::memory_order_acquire);
       node* next_node = current_head->next;
 
-      if (current_head != this->head.load(std::memory_order_seq_cst)) {
-        continue;
-      }
-
-      if (this->head.compare_exchange_strong(current_head, next_node, std::memory_order_seq_cst)) {
+      if (this->head.compare_exchange_strong(current_head, next_node,
+                                             std::memory_order_release)) {
         return_value.swap(next_node->data);
         delete current_head;
         break;
