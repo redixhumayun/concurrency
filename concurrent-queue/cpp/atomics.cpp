@@ -8,11 +8,11 @@ std::atomic<bool> ready(false);
 
 void producer() {
   data = 100;
-  ready.store(true, std::memory_order_relaxed);  // Set flag
+  ready.store(true, std::memory_order_release);  // Set flag
 }
 
 void consumer() {
-  while (!ready.load(std::memory_order_relaxed))
+  while (!ready.load(std::memory_order_acquire))
     ;
   assert(data == 100);
 }

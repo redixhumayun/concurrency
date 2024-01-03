@@ -1,3 +1,5 @@
 /**/build
 /**/release
 /**/target
+/**/.idea
+/**/cmake-build*
