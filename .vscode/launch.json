@@ -8,7 +8,7 @@
       "name": "(lldb) Launch Cpp",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/matrix-multiply/cpp/build/tests",
+      "program": "${workspaceFolder}/concurrent-queue/cpp/build/tests",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",

@@ -6,7 +6,7 @@ class lock_free_queue {
  private:
   struct node {
     std::shared_ptr<T> data;
-    node* next;
+    std::atomic<node*> next;
 
     node() : next(nullptr) {}  //  initialise the node
   };
@@ -33,23 +33,35 @@ class lock_free_queue {
 
     //  do an infinite loop to change the tail
     while (true) {
-      node* current_tail = this->tail.load();
+      node* current_tail = this->tail.load(std::memory_order_seq_cst);
       node* tail_next = current_tail->next;
 
       //  everything is correct so far, attempt the swap
-      if (std::atomic_compare_exchange_strong(current_tail->next, tail_next, new_node, std::memory_order_seq_cst)) {
+      if (current_tail->next.compare_exchange_strong(tail_next, new_node, std::memory_order_seq_cst, std::memory_order_seq_cst)) {
         this->tail = new_node;
-        break;  //  swap worked, break out
+        break;
       }
     }
   }
 
   std::shared_ptr<T> dequeue() {
-    node* current_head = this->head.load();
+    std::shared_ptr<T> return_value = nullptr;
 
     //  do an infinite loop the change the head
     while (true) {
-      
+      node* current_head = this->head.load(std::memory_order_seq_cst);
+      node* next_node = current_head->next;
+
+      if (current_head != this->head.load(std::memory_order_seq_cst)) {
+        continue;
+      }
+
+      if (this->head.compare_exchange_strong(current_head, next_node, std::memory_order_seq_cst)) {
+        return_value.swap(next_node->data);
+        delete current_head;
+        break;
+      }
     }
+    return return_value;
   }
 };

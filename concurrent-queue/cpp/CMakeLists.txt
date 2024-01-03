@@ -52,9 +52,11 @@ add_executable(atomics atomics.cpp)
 add_executable(atomics-test atomics-test.cpp)
 add_executable(lock-free-queue lock-free-queue.cpp
         lock-free-queue.hpp)
+add_executable(lock-free-queue-tests lock-free-queue-tests.cpp)
 
 target_link_libraries(main ${OpenMP_CXX_LIBRARIES})
 target_link_libraries(tests ${OpenMP_CXX_LIBRARIES} gtest_main benchmark::benchmark)
+target_link_libraries(lock-free-queue-tests gtest_main)
 target_link_libraries(queue-benchmarks benchmark::benchmark)
 target_include_directories(tests PRIVATE ${googletest_SOURCE_DIR}/include)
 
