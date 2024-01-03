@@ -71,7 +71,10 @@
     "variant": "cpp",
     "algorithm": "cpp",
     "queue": "cpp",
-    "shared_mutex": "cpp"
+    "shared_mutex": "cpp",
+    "cinttypes": "cpp",
+    "codecvt": "cpp",
+    "regex": "cpp"
   },
   "cmake.sourceDirectory": "/Users/zaidhumayun/Desktop/Development.nosync/concurrency/merge-sort/cpp"
 }
