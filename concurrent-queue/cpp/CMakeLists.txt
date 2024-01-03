@@ -48,6 +48,7 @@ endif()
 add_executable(main main.cpp main-impl.cpp)
 add_executable(tests test.cpp main-impl.cpp)
 add_executable(queue-benchmarks benchmark.cpp)
+add_executable(atomics atomics.cpp)
 
 target_link_libraries(main ${OpenMP_CXX_LIBRARIES})
 target_link_libraries(tests ${OpenMP_CXX_LIBRARIES} gtest_main benchmark::benchmark)
